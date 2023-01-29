@@ -1,0 +1,147 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-header">Cargar Excel </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <label id="labelInput" style="cursor:pointer;" class="pointer-event text-primary fw-bold" for="inputExcel"><span><i class="bi bi-file-earmark-arrow-up text-primary"></i></span> Seleccionar archivo</label>
+                            <input class="form-control-file visually-hidden" type="file" id="inputExcel" onclick="mostrarBoton()" />
+                        </div>
+                        <div class="col-sm-4 gap-2">
+                            <button id="mostrar" class="btn btn-primary text-white fw-bold visually-hidden" onclick="mostrarDatos()">Mostrar datos</button>
+                            <button id="enviar" class="btn btn-primary text-white fw-bold visually-hidden" onclick="enviarDatos()">Enviar datos a DB</button>
+                            <form action="@Url.Action("GetRecap", "Home")">
+                                <button id="recap" class="btn btn-primary visually-hidden" type="submit">Generar RECAP</button>
+							</form>	
+                            <div id="loadingSpinner2" class=" d-none text-center text-primary">
+                                <div class="spinner-border" role="status"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table id="tbData" class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>UHML</th>
+                                        <th>UI</th>
+                                        <th>Strength</th>
+                                        <th>SFI</th>
+                                        <th>Mic</th>
+                                        <th>ColorGrade</th>
+                                        <th>TrashID</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody">                                    
+                                </tbody>
+                            </table>
+
+                            <div id="loadingSpinner" class=" d-none text-center text-primary">
+                                <div class="spinner-border" role="status"></div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+@section Scripts{
+    <script>
+        const input = document.getElementById("inputExcel");
+        const mostrar = document.getElementById("mostrar");
+        const enviar = document.getElementById("enviar");
+        const tableBody = document.getElementById("tableBody");
+        const labelInput = document.getElementById("labelInput");
+        const recap = document.getElementById("recap");
+        const loadingSpinner = document.getElementById("loadingSpinner");
+        const loadingSpinner2 = document.getElementById("loadingSpinner2");
+
+        function mostrarBoton() {
+            mostrar.classList.remove('visually-hidden');
+            input.addEventListener("change", function () {
+            labelInput.innerHTML = input.files[0].name;
+            });
+        }
+
+        function mostrarDatos() {
+
+            if (!tableBody.rows.length) {               
+                loadingSpinner.classList.remove("d-none");
+            } else {               
+                loadingSpinner.classList.add("d-none");
+            }
+
+
+            const formData = new FormData()
+
+            formData.append("ArchivoExcel", input.files[0])
+
+            fetch("Home/MostrarDatos", {
+                method: "POST",
+                body: formData
+            })
+                .then((response) => { return response.json() })
+                .then((dataJson) => {
+                    dataJson.forEach((item) => {
+                        $("#tbData tbody").append(
+                            $("<tr>").append(
+                                $("<td>").text(item.uhml),
+                                $("<td>").text(item.ui),
+                                $("<td>").text(item.strength),
+                                $("<td>").text(item.sfi),
+                                $("<td>").text(item.mic),
+                                $("<td>").text(item.colorGrade),
+                                $("<td>").text(item.trashID)
+                            )
+                        )
+                    })
+                    console.log(dataJson)
+                })
+            enviar.classList.remove('visually-hidden');
+            mostrar.classList.add('visually-hidden');
+        }
+
+        function enviarDatos() {
+            
+            enviar.classList.add('visually-hidden');
+            loadingSpinner2.classList.remove("d-none")
+
+            const formData = new FormData()
+
+            formData.append("ArchivoExcel", input.files[0])
+
+            fetch("Home/EnviarDatos", {
+                method: "POST",
+                body: formData
+            })
+                .then((response) => { return response.json() })
+                .then((dataJson) => {
+                   
+                    alert("Data enviada a la base de datos con exito");
+                    tableBody.innerHTML = "";
+                    recap.classList.remove('visually-hidden');
+                    loadingSpinner.classList.add("d-none")
+                    loadingSpinner2.classList.add("d-none")
+                    labelInput.classList.add("d-none")
+                })
+        }
+    </script>
+}
+
