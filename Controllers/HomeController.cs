@@ -85,6 +85,11 @@ namespace ExcelManagerIntegralCotton.Controllers
             int cantidadFila = HojaExcel.LastRowNum;
 
 
+            var allEntities = _context.ExcelData.ToList();
+            _context.ExcelData.RemoveRange(allEntities);
+            _context.SaveChanges();
+
+
             for (int i = 1; i < cantidadFila; i++)
             {
                 IRow fila = HojaExcel.GetRow(i);
@@ -99,7 +104,8 @@ namespace ExcelManagerIntegralCotton.Controllers
                     Colorgrade = fila.GetCell(5).ToString(),
                     TrashId = fila.GetCell(6).ToString(),
                 });
-            }
+            }           
+            
             _context.BulkInsert(HviDB);
             return StatusCode(StatusCodes.Status200OK, new { mensaje = "ok" });
         }
