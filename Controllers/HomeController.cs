@@ -124,10 +124,6 @@ namespace ExcelManagerIntegralCotton.Controllers
             AmountTRSH(TRSH, list, trshTotal);
             BaseListFill();
 
-            var test = baseList;           
-
-            var numer = 7;
-
             if (list != null)return View(baseList);
             else return BadRequest();
         }

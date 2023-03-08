@@ -32,7 +32,7 @@ namespace ExcelManagerIntegralCotton.Repository
                     TrashId = Convert.ToDecimal(item.Ui),
                 });
             }
-
+            
             return recapList;
         }     
 
